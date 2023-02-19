@@ -43,7 +43,7 @@ function IGRA2Tm(station :: IGRAv2Data)
 
         ind = .!isnan.(iqair) .& .!isnan.(ibtm)
         
-        if sum(ind) > 1
+        if sum(ind) > 3 # Sounding must have at least 3 valid data points of T and q
             tm[it] = integrate(view(ix,ind),view(iqair,ind)) /
                      integrate(view(ix,ind),view(ibtm ,ind))
         else
