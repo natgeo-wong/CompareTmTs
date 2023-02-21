@@ -65,7 +65,7 @@ function readTmfromIGRAv2(station :: IGRAv2Station)
     if isfile(fID)
 
         data = readdlm(fID,',')
-        return data[:,1], data[:,2]
+        return DateTime.(data[:,1]), data[:,2]
 
     else
 
