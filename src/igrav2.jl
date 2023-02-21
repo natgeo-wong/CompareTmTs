@@ -4,9 +4,7 @@ using Statistics
 
 function IGRA2Tm(station :: IGRAv2Data)
 
-    if station.derived
-        fID = joinpath(station.path,"IGRAv2","derived","$(station.ID).txt")
-    else
+    if !station.derived
         error("$(Dates.now()) - CompareTmTs - We use only `derived` data to calculate Tm ...")
     end
 
@@ -57,6 +55,22 @@ function IGRA2Tm(station :: IGRAv2Data)
     tmID = joinpath(tmfol,"$(station.ID).txt")
     open(tmID, "w") do io
         writedlm(io, [station.dates tm], ',')
+    end
+
+end
+
+function readTmfromIGRAv2(station :: IGRAv2Station)
+
+    fID = datadir("IGRAv2","Tm","$(station.ID).txt")
+    if isfile(fID)
+
+        data = readdlm(fID,',')
+        return data[:,1], data[:,2]
+
+    else
+
+         error("$(now()) - CompareTmTs - $(station.ID) does not have a derived file to calculate Tm data for")
+
     end
 
 end
