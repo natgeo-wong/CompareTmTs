@@ -2,11 +2,7 @@ using DelimitedFiles
 using NumericalIntegration
 using Statistics
 
-function IGRA2Tm(station :: IGRAv2Data)
-
-    if !station.derived
-        error("$(Dates.now()) - CompareTmTs - We use only `derived` data to calculate Tm ...")
-    end
+function IGRA2Tm(station :: IGRAv2Derived)
 
     pres = profile_pressure(station)
     tair = profile_temperature(station)
@@ -59,7 +55,7 @@ function IGRA2Tm(station :: IGRAv2Data)
 
 end
 
-function readTmfromIGRAv2(station :: IGRAv2Station)
+function readTmfromIGRAv2(station :: IGRAv2Derived)
 
     fID = datadir("IGRAv2","Tm","$(station.ID).txt")
     if isfile(fID)

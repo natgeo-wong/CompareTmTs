@@ -3,11 +3,11 @@ using DrWatson
 
 using ParseIGRAv2
 
-for ID in stationlist()
-    stn = station(ID)
+for ID in stationlist(derived=true)
+    stn = station(ID,derived=true)
     try
-        download(stn,path=datadir(),derived=true)
-        extract(stn,path=datadir(),derived=true)
+        download(stn,path=datadir())
+        extract(stn,path=datadir())
     catch
     end
 end
