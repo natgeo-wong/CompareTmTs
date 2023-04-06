@@ -22,8 +22,8 @@ calce2q(e::Real,p::Real) = e * 0.621981 / (p - 0.378019 * e)
 function IGRA2Tm(station :: IGRAv2DataRaw)
 
     pres = profile_pressure(station)
-    tair = profile_temperature(station)
-    rhum = profile_relativehumidity(station)
+    tair = profile_temperature(station) .+ 273.15
+    rhum = profile_relativehumidity(station) ./ 100
 
     ntime = length(station.nlevels)
     tm = zeros(ntime)
@@ -46,7 +46,7 @@ function IGRA2Tm(station :: IGRAv2DataRaw)
         ix = @view ipres[1:(station.nlevels[it]+1)]
 
         for ilvl = 1 : station.nlevels[it]
-            qair[ilvl] = calce2q(calcTd2e(itair[ilvl]),ipres[ilvl]) * irhum / 100
+            qair[ilvl] = calce2q(calcTd2e(itair[ilvl]),ipres[ilvl]) * irhum
             btm[ilvl] = qair[ilvl] ./ itair[ilvl]
         end
         iqair = @view qair[1:(station.nlevels[it]+1)]; iqair[end] = 0
