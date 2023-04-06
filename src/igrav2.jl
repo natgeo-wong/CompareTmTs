@@ -5,9 +5,9 @@ using Statistics
 function calcTd2e(T::Real)
 
     if T >= 273.16
-    	return 611.21 * exp(17.502 * (Td-273.16) / (Td-32.19))
+    	return 611.21 * exp(17.502 * (T-273.16) / (T-32.19))
     elseif T <= 250.16
-    	return 611.21 * exp(22.587 * (Td-273.16) / (Td+0.7))
+    	return 611.21 * exp(22.587 * (T-273.16) / (T+0.7))
     else
         α  = ((T - 250.16) / (273.16 - 250.16))^2
         ei = 611.21 * exp(22.587 * (T-273.16) / (T+0.7))
@@ -46,7 +46,7 @@ function IGRA2Tm(station :: IGRAv2DataRaw)
         ix = @view ipres[1:(station.nlevels[it]+1)]
 
         for ilvl = 1 : station.nlevels[it]
-            qair[ilvl] = calce2q(calcTd2e(itair[ilvl]),ipres[ilvl]) * irhum
+            qair[ilvl] = calce2q(calcTd2e(itair[ilvl]),ipres[ilvl]) * irhum[ilvl]
             btm[ilvl] = qair[ilvl] ./ itair[ilvl]
         end
         iqair = @view qair[1:(station.nlevels[it]+1)]; iqair[end] = 0
@@ -63,7 +63,7 @@ function IGRA2Tm(station :: IGRAv2DataRaw)
 
     end
 
-    tmfol = joinpath(station.path,"IGRAv2","Tm","raw")
+    tmfol = joinpath(dirname(dirname(station.file)),"Tm","raw")
     if !isdir(tmfol); mkpath(tmfol) end
     tmID = joinpath(tmfol,"$(station.ID).txt")
     open(tmID, "w") do io
@@ -116,7 +116,7 @@ function IGRA2Tm(station :: IGRAv2DataDerived)
 
     end
 
-    tmfol = joinpath(station.path,"IGRAv2","Tm","derived")
+    tmfol = joinpath(dirname(dirname(station.file)),"Tm","derived")
     if !isdir(tmfol); mkpath(tmfol) end
     tmID = joinpath(tmfol,"$(station.ID).txt")
     open(tmID, "w") do io
