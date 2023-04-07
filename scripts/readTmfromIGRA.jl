@@ -6,7 +6,7 @@ using ParseIGRAv2
 
 include(srcdir("igrav2.jl"))
 
-dtvec = DateTime(1979,1,1,0,0,0) : Hour(12) : DateTime(2022,1,1,0,0,0)
+dtvec = collect(DateTime(1979,1,1,0,0,0) : Hour(12) : DateTime(2022,1,1,0,0,0))
 pop!(dtvec)
 stations = stationlist(derived=true)
 
@@ -18,7 +18,7 @@ for istn in 1 : length(stations)
     for idt in 1 : ndt
 
         ii = findfirst(dtvec.==date[idt])
-        if !isnan(Tm[idt])
+        if !isnan(Tm[idt]) && !isnothing(ii)
             TmMat[ii,istn] = Tm[idt]
         end
 
