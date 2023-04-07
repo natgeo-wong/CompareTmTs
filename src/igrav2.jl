@@ -125,9 +125,12 @@ function IGRA2Tm(station :: IGRAv2DataDerived)
 
 end
 
-function readTmfromIGRAv2(station :: IGRAv2StationDerived)
+TmIGRAv2path(station::IGRAv2StationRaw) = datadir("IGRAv2","Tm","raw","$(station.ID).txt")
+TmIGRAv2path(station::IGRAv2StationDerived) = datadir("IGRAv2","Tm","derived","$(station.ID).txt")
 
-    fID = datadir("IGRAv2","Tm","$(station.ID).txt")
+function readTmfromIGRAv2(station :: IGRAv2Station)
+
+    fID = TmIGRAv2path(station)
     if isfile(fID)
 
         data = readdlm(fID,',')
