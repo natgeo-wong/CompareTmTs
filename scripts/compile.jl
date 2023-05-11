@@ -58,7 +58,7 @@ function compile(
 
     fnc = datadir("compile_$(evar.varID).nc"); if isfile(fnc); rm(fnc,force=true) end
     
-    ds = NCDataset(fTm,"c",attrib = Dict(
+    ds = NCDataset(fnc,"c",attrib = Dict(
         "history"     => "Created on $(Dates.now())",
         "comments"    => "Created by the CompareTmTs project, compiled Tm statistics from 1979 to 2021"
     ))
