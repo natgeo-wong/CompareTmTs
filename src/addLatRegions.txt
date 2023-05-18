@@ -1,0 +1,24 @@
+# RectRegion
+# Template for User-Defined RectRegion GeoRegions
+# (1)ID, (2)pID, (3)N, (4)W, (5)S, (6)E, (7)Description, (8)Notes
+
+# TST, GLB, 50, 20, 40, 30, Test Rectangle
+
+LAT1, GLB, 90, 0, 80, 360, Latitude Band 1
+LAT2, GLB, 80, 0, 70, 360, Latitude Band 2
+LAT3, GLB, 70, 0, 60, 360, Latitude Band 3
+LAT4, GLB, 60, 0, 50, 360, Latitude Band 4
+LAT5, GLB, 50, 0, 40, 360, Latitude Band 5
+LAT6, GLB, 40, 0, 30, 360, Latitude Band 6
+LAT7, GLB, 30, 0, 20, 360, Latitude Band 7
+LAT8, GLB, 20, 0, 10, 360, Latitude Band 8
+LAT9, GLB, 10, 0, 0, 360, Latitude Band 9
+LAT10, GLB, 0, 0, -10, 360, Latitude Band 10
+LAT11, GLB, -10, 0, -20, 360, Latitude Band 11
+LAT12, GLB, -20, 0, -30, 360, Latitude Band 12
+LAT13, GLB, -30, 0, -40, 360, Latitude Band 13
+LAT14, GLB, -40, 0, -50, 360, Latitude Band 14
+LAT15, GLB, -50, 0, -60, 360, Latitude Band 15
+LAT16, GLB, -60, 0, -70, 360, Latitude Band 16
+LAT17, GLB, -70, 0, -80, 360, Latitude Band 17
+LAT18, GLB, -80, 0, -90, 360, Latitude Band 18
