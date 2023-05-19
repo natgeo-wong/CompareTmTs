@@ -7,12 +7,13 @@ using StatsBase
 
 function correlationTmTs(
     e5ds :: ERA5Dataset,
+    egeo :: ERA5Region
 )
 
     lsd = getLandSea(e5ds,egeo)
     dtbeg = e5ds.start
     dtend = e5ds.stop
-    ndt   = ((dtend + Month(1)) - dtbeg) * 24
+    ndt   = Dates.value((dtend + Month(1)) - dtbeg) * 24
 
     evar_Ts = SingleVariable("t2m")
     evar_Tm = SingleVariable("Tm")
@@ -62,19 +63,19 @@ function correlationTmTs(
 
             tstmp_ilon = view(tstmp_flt,ilon,:)
             tstmp_ilat = view(tstmp_flt,ilat,:)
-            tstm_corr[ilon,ilat] = corr(tstmp_ilon,tstmp_ilat)
+            tstm_corr[ilon,ilat] = cor(tstmp_ilon,tstmp_ilat)
 
         end
 
     end
 
-    fnc = datadir("tmtscorr.nc")
+    fnc = datadir("tmtscorr_$(egeo.geoID).nc")
     if isfile(fnc) rm(fnc,force=true) end
     ds = NCDataset(fnc,"c")
 
     ds.dim["longitude"] = length(lsd.lon)
     ds.dim["latitude"]  = length(lsd.lat)
-    ncrho = defVar(ds,"rho",Float64,("longitude","latitude","phase"),attrib = Dict(
+    ncrho = defVar(ds,"rho",Float64,("longitude","latitude"),attrib = Dict(
         "units"     => "0-1",
         "full_name" => "Correlation between Ts and Tm"
     ))
@@ -83,3 +84,36 @@ function correlationTmTs(
 
 end
 
+function compilecorrelationTmTs()
+
+    corr_TsTm = zeros(1440,721)
+
+    for ilat = 1 : 18
+        ibeg = (ilat-1) * 40 + 1
+        iend =  ilat    * 40 + 1
+        icorr = @view corr_TsTm[:,ibeg:iend,:]
+        ds = NCDataset(datadir("tmtscorr_LAT$ilat.nc"))
+        icorr .= ds["rho"][:]
+        close(ds)
+    end
+
+    fnc = datadir("tmtscorr.nc")
+    if isfile(fnc) rm(fnc,force=true) end
+    ds = NCDataset(fnc,"c")
+
+    ds.dim["longitude"] = size(corr_TsTm,1)
+    ds.dim["latitude"]  = size(corr_TsTm,2)
+    ncrho = defVar(ds,"rho",Float64,("longitude","latitude"),attrib = Dict(
+        "units"     => "0-1",
+        "full_name" => "Correlation between Ts and Tm"
+    ))
+    ncrho.var[:] = tstm_corr
+    close(ds)
+
+end
+
+e5ds = ERA5Hourly(start=Date(1979),stop=Date(1979,5),path=datadir())
+for ilat = 1 : 18
+    egeo = GeoRegion("LAT$ilat")
+    correlationTmTs(e5ds,ERA5Region(egeo,gres=0.25))
+end
