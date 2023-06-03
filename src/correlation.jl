@@ -18,65 +18,61 @@ function correlationTmTs(
     evar_Ts = SingleVariable("t2m")
     evar_Tm = SingleVariable("Tm")
 
-    tstmp_int = zeros(Int16,length(lsd.lon),31*24)
-    tmtmp_int = zeros(Int16,length(lsd.lon),31*24)
-    tstmp_flt = zeros(length(lsd.lon),ndt)
-    tmtmp_flt = zeros(length(lsd.lon),ndt)
-    tstm_corr = zeros(length(lsd.lon),length(lsd.lat))
+    nlon = Int(length(lsd.lon)/4);       nnlon = length(lsd.lon)
+    nlat = Int(ceil(length(lsd.lat)/4)); nnlat = length(lsd.lat)
+    tstmp_int = zeros(Int16,nlon,nlat,31*24)
+    tmtmp_int = zeros(Int16,nlon,nlat,31*24)
+    tstmp_flt = zeros(nlon,nlat,ndt)
+    tmtmp_flt = zeros(nlon,nlat,ndt)
+    tstm_corr = zeros(nlon,nlat)
 
-    for ilat = 1 : length(lsd.lat)
+    for idt = dtbeg : Month(1) : dtend
 
-        @info "$(Dates.now()) - CompareTmTs - Performing correlation for latitude $ilat of $(length(lsd.lat))"
+        nhr = daysinmonth(idt) * 24
+        ibeg = Dates.value(idt-dtbeg) * 24 + 1
+        iend = Dates.value(idt-dtbeg) * 24 + nhr
 
-        for idt = dtbeg : Month(1) : dtend
+        tstmp = @view tstmp_int[:,:,1:nhr]
+        tmtmp = @view tmtmp_int[:,:,1:nhr]
+        tsdt  = @view tstmp_flt[:,:,ibeg:iend]
+        tmdt  = @view tmtmp_flt[:,:,ibeg:iend]
 
-            nhr = daysinmonth(idt) * 24
-            ibeg = Dates.value(idt-dtbeg) * 24 + 1
-            iend = Dates.value(idt-dtbeg) * 24 + nhr
+        @info "$(Dates.now()) - CompareTmTs - Loading data for $idt ..."
 
-            tstmp = @view tstmp_int[:,1:nhr]
-            tmtmp = @view tmtmp_int[:,1:nhr]
-            tsdt  = @view tstmp_flt[:,ibeg:iend]
-            tmdt  = @view tmtmp_flt[:,ibeg:iend]
+        tsds = read(e5ds,evar_Ts,egeo,idt,quiet=true)
+        tmds = read(e5ds,evar_Tm,egeo,idt,quiet=true)
 
-            tsds = read(e5ds,evar_Ts,egeo,idt,quiet=true)
-            tmds = read(e5ds,evar_Tm,egeo,idt,quiet=true)
+        sc = tsds["t2m"].attrib["scale_factor"]
+        of = tsds["t2m"].attrib["add_offset"]
+        mv = tsds["t2m"].attrib["missing_value"]
+        fv = tsds["t2m"].attrib["_FillValue"]
+        NCDatasets.load!(tsds["t2m"].var,tstmp,1:4:nnlon,1:4:nnlat,:)
+        ERA5Reanalysis.int2real!(tsdt,tstmp,scale=sc,offset=of,mvalue=mv,fvalue=fv)
 
-            sc = tsds["t2m"].attrib["scale_factor"]
-            of = tsds["t2m"].attrib["add_offset"]
-            mv = tsds["t2m"].attrib["missing_value"]
-            fv = tsds["t2m"].attrib["_FillValue"]
-            NCDatasets.load!(tsds["t2m"].var,tstmp,:,ilat,:)
-            ERA5Reanalysis.int2real!(tsdt,tstmp,scale=sc,offset=of,mvalue=mv,fvalue=fv)
+        sc = tmds["Tm"].attrib["scale_factor"]
+        of = tmds["Tm"].attrib["add_offset"]
+        mv = tmds["Tm"].attrib["missing_value"]
+        fv = tmds["Tm"].attrib["_FillValue"]
+        NCDatasets.load!(tmds["Tm"].var,tmtmp,1:4:nnlon,1:4:nnlat,:)
+        ERA5Reanalysis.int2real!(tmdt,tmtmp,scale=sc,offset=of,mvalue=mv,fvalue=fv)
 
-            sc = tmds["Tm"].attrib["scale_factor"]
-            of = tmds["Tm"].attrib["add_offset"]
-            mv = tmds["Tm"].attrib["missing_value"]
-            fv = tmds["Tm"].attrib["_FillValue"]
-            NCDatasets.load!(tmds["Tm"].var,tmtmp,:,ilat,:)
-            ERA5Reanalysis.int2real!(tmdt,tmtmp,scale=sc,offset=of,mvalue=mv,fvalue=fv)
-
-            close(tsds)
-            close(tmds)
-
-        end
-
-        for ilon = 1 : length(lsd.lon)
-
-            tstmp_ilon = view(tstmp_flt,ilon,:)
-            tmtmp_ilon = view(tmtmp_flt,ilon,:)
-            tstm_corr[ilon,ilat] = cor(tstmp_ilon,tmtmp_ilon)
-
-        end
+        close(tsds)
+        close(tmds)
 
     end
 
-    fnc = datadir("tmtscorr_$(egeo.geoID).nc")
+    for ilat = 1 : nlat, ilon = 1 : nlon
+        tstmp_ilon = view(tstmp_flt,ilon,ilat,:)
+        tmtmp_ilon = view(tmtmp_flt,ilon,ilat,:)
+        tstm_corr[ilon,ilat] = cor(tstmp_ilon,tmtmp_ilon)
+    end
+
+    fnc = datadir("tmtscorr_$(egeo.ID).nc")
     if isfile(fnc) rm(fnc,force=true) end
     ds = NCDataset(fnc,"c")
 
-    ds.dim["longitude"] = length(lsd.lon)
-    ds.dim["latitude"]  = length(lsd.lat)
+    ds.dim["longitude"] = Int(length(lsd.lon)/4)
+    ds.dim["latitude"]  = Int(ceil(length(lsd.lat)/4))
     ncrho = defVar(ds,"rho",Float64,("longitude","latitude"),attrib = Dict(
         "units"     => "0-1",
         "full_name" => "Correlation between Ts and Tm"
@@ -88,11 +84,11 @@ end
 
 function compilecorrelationTmTs()
 
-    corr_TsTm = zeros(1440,721)
+    corr_TsTm = zeros(360,181)
 
     for ilat = 1 : 18
-        ibeg = (ilat-1) * 40 + 1
-        iend =  ilat    * 40 + 1
+        ibeg = (ilat-1) * 10 + 1
+        iend =  ilat    * 10 + 1
         icorr = @view corr_TsTm[:,ibeg:iend,:]
         ds = NCDataset(datadir("tmtscorr_LAT$ilat.nc"))
         icorr .= ds["rho"][:]
