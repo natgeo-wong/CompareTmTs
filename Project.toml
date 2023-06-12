@@ -2,12 +2,14 @@ name = "CompareTmTs"
 authors = ["Nathanael Wong <natgeo.wong@outlook.com>"]
 
 [deps]
+Clustering = "aaaa29a8-35af-508c-8bc3-b662a17a0fe5"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 DrWatson = "634d3b9d-ee7a-5ddf-bec9-22491ea816e1"
 ERA5Reanalysis = "99c076f5-c00e-46eb-a0bd-7ba31777c146"
 GeoRegions = "b001f823-fa75-4bff-bf55-6610c8f3688a"
 ImageShow = "4e3cecfd-b093-5904-9786-8bbb286a6a31"
+KernelDensity = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
 LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 NCDatasets = "85f8d34a-cbdd-5861-8df4-14fed0d494ab"
 NumericalIntegration = "e7bfaba1-d571-5449-8927-abc22e82249b"
