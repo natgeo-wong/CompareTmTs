@@ -1,3 +1,4 @@
+using Dates
 using Logging
 using NCDatasets
 using Statistics
@@ -30,7 +31,7 @@ function merraTm(;
 
         for ihr = 1 : 8
 
-            ds  = NCDataset(datadir("merra2pre","MERRA2_$(dtstr)_$(ihr-1).nc"))
+            ds  = NCDataset(datadir("merra2pre","merra2pre-$(dtstr).nc"))
 
             NCDatasets.load!(ds["T"].var,tatmp,:,:,:,ihr)
             NCDatasets.load!(ds["QV"].var,qvtmp,:,:,:,ihr)
@@ -38,7 +39,7 @@ function merraTm(;
 
             close(ds)
 
-            ds  = NCDataset(datadir("merra2sfc","MERRA2_$(dtstr)_$(ihr-1).nc"))
+            ds  = NCDataset(datadir("merra2sfc","merra2sfc-$(dtstr).nc"))
 
             NCDatasets.load!(ds["T2M"].var,tstmp,:,:,(ihr-1)*3 .+ 1:3)
             NCDatasets.load!(ds["QV2M"].var,qstmp,:,:,(ihr-1)*3 .+ 1:3)
@@ -80,7 +81,7 @@ function merraTm(;
         end
 
         mkpath(datadir("merra2Tm"))
-        fnc = datadir("merra2Tm","MERRA2Tm_$(dtstr).nc")
+        fnc = datadir("merra2Tm","merra2Tm-$(dtstr).nc")
         if isfile(fnc); rm(fnc,force=true) end
         ds = NCDataset(fnc,"c",attrib = Dict(
             "Conventions" => "CF-1.6",
