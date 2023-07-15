@@ -1,4 +1,6 @@
+using Logging
 using NCDatasets
+using Statistics
 using Trapz
 
 function merraTm(;
@@ -21,6 +23,8 @@ function merraTm(;
     Tm = zeros(576,361,8)
 
     for idt in start : Day(1) : stop
+
+        @info "$(now()) - Calculating MERRA-2 Tm for $idt ..."
 
         dtstr =  Dates.format(idt,dateformat"yyyymmdd")
 
