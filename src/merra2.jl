@@ -49,10 +49,10 @@ function merraTm(;
 
             for ilat = 1 : 361, ilon = 1 : 576
                 
-                ips      = mean(view(pstmp[ilon,ilat,:]))
+                ips      = mean(view(pstmp,ilon,ilat,:))
                 ipa[end] = ips
-                ita[end] = mean(view(tstmp[ilon,ilat,:]))
-                iqv[end] = mean(view(qstmp[ilon,ilat,:]))
+                ita[end] = mean(view(tstmp,ilon,ilat,:))
+                iqv[end] = mean(view(qstmp,ilon,ilat,:))
 
 
                 for ip = 2 : 73
