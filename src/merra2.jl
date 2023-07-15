@@ -113,7 +113,7 @@ function merraTm(;
             "units"         => "K",
         ))
 
-        nclon[:] = collect(0:0.625:360)[1:(end-1)]
+        nclon[:] = collect(0:0.625:360)[1:(end-1)] .- 180
         nclat[:] = collect(-90:0.5:90)
         nctime[:] = collect(0:7) * 3
         ncvar[:] = Tm
