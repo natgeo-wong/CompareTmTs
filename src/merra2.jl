@@ -70,7 +70,7 @@ function merraTm(;
                 end
                 ind[end] = true
 
-                top = @view ish[ind]
+                top = @view iqv[ind]
                 btm = @view bot[ind]
                 ipp = @view ipa[ind]
 
