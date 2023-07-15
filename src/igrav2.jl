@@ -1,5 +1,5 @@
 using DelimitedFiles
-using NumericalIntegration
+using Trapz
 using Statistics
 
 function calcTd2e(T::Real)
@@ -55,8 +55,8 @@ function IGRA2Tm(station :: IGRAv2DataRaw)
         ind = .!isnan.(iqair) .& .!isnan.(ibtm)
         
         if sum(ind) > 3 # Sounding must have more than 3 valid data points of T and q
-            tm[it] = integrate(view(ix,ind),view(iqair,ind)) /
-                     integrate(view(ix,ind),view(ibtm ,ind))
+            tm[it] = trapz(view(ix,ind),view(iqair,ind)) /
+                     trapz(view(ix,ind),view(ibtm ,ind))
         else
             tm[it] = NaN
         end
@@ -108,8 +108,8 @@ function IGRA2Tm(station :: IGRAv2DataDerived)
         ind = .!isnan.(iqair) .& .!isnan.(ibtm)
         
         if sum(ind) > 3 # Sounding must have at least 3 valid data points of T and q
-            tm[it] = integrate(view(ix,ind),view(iqair,ind)) /
-                     integrate(view(ix,ind),view(ibtm ,ind))
+            tm[it] = trapz(view(ix,ind),view(iqair,ind)) /
+                     trapz(view(ix,ind),view(ibtm ,ind))
         else
             tm[it] = NaN
         end
