@@ -45,36 +45,33 @@ function comparisonggosa(
             e524h = @view e5tmp_24h[:,:,1:nhr]
             e5dt  = @view e5tmp_flt[:,:,ibeg:iend]
 
-            @info "$(Dates.now()) - CompareTmTs - Loading ERA5 Reanalysis Data for $idt ..."
+            @info "$(Dates.now()) - CompareTmTs - Loading ERA5 Reanalysis Data for $dt ..."
 
-            e5ds = read(e5ds,evar_Tm,egeo,idt,quiet=true)
+            eds = read(e5ds,evar_Tm,egeo,dt,quiet=true)
 
-            sc = e5ds["Tm"].attrib["scale_factor"]
-            of = e5ds["Tm"].attrib["add_offset"]
-            mv = e5ds["Tm"].attrib["missing_value"]
-            fv = e5ds["Tm"].attrib["_FillValue"]
-            NCDatasets.load!(e5ds["Tm"].var,e5tmp,1:10:glon,1:8:glat,:)
+            sc = eds["Tm"].attrib["scale_factor"]
+            of = eds["Tm"].attrib["add_offset"]
+            mv = eds["Tm"].attrib["missing_value"]
+            fv = eds["Tm"].attrib["_FillValue"]
+            NCDatasets.load!(eds["Tm"].var,e5tmp,1:10:glon,1:8:glat,:)
             ERA5Reanalysis.int2real!(e524h,e5tmp,scale=sc,offset=of,mvalue=mv,fvalue=fv)
 
             for i6h = 1 : n6h, ilat = 1 : nlat, ilon = 1 : nlon
                 e5dt[ilon,ilat,i6h] = mean(view(e524h,ilon,ilat,(1:6).+(i6h-1)*6))
             end
 
-            close(e5ds)
+            close(eds)
 
         end
 
         nhr = daysinyear(idt) * 4
-        ibeg = Dates.value(idt-dtbeg) * 4 + 1
-        iend = Dates.value(idt-dtbeg) * 4 + nhr
-
-        gadt  = @view gatmp_flt[:,:,ibeg:iend]
+        gadt  = @view gatmp_flt[:,:,1:nhr]
 
         @info "$(Dates.now()) - CompareTmTs - Loading GGOS Atmosphere Data $idt ..."
 
-        gads = NCDataset(datadir("ggosa","ggosa-$(year(idt))"))
-        NCDatasets.load!(gads["Tm"].var,gadt,:,:,:)
-        close(gads)
+        gds = NCDataset(datadir("ggosa","ggosa-$(year(idt)).nc"))
+        NCDatasets.load!(gds["Tm"].var,gadt,:,:,:)
+        close(gds)
 
         for ihr = 1 : nhr, ilat = 1 : nlat, ilon = 1 : nlon
             e5gad_flt[ilon,ilat] +=  e5tmp_flt[ilon,ilat,ihr] - gatmp_flt[ilon,ilat,ihr]
