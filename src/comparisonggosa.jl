@@ -5,13 +5,14 @@ using ERA5Reanalysis
 using NCDatasets
 using StatsBase
 
-function correlationGGOSA(
+function comparisonggosa(
     e5ds :: ERA5Hourly
 )
 
     lsd = getLandSea(e5ds,egeo)
     dtbeg = e5ds.start
     dtend = e5ds.stop
+    egeo  = ERA5Region("GLB",resolution=0.25)
 
     evar_Tm = SingleVariable("Tm")
 
