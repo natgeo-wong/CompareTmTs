@@ -47,7 +47,7 @@ function comparisonggosa(
 
             @info "$(Dates.now()) - CompareTmTs - Loading ERA5 Reanalysis Data for $dt ..."
 
-            eds = read(e5ds,evar_Tm,egeo,dt,quiet=true)
+            eds = read(e5ds,evar_Tm,egeo,dt,smooth=true,smoothlon=2.5,smoothlat=2.0,quiet=true)
 
             sc = eds["Tm"].attrib["scale_factor"]
             of = eds["Tm"].attrib["add_offset"]
@@ -87,7 +87,7 @@ function comparisonggosa(
         e5gae_flt[ilon,ilat]  = sqrt(e5gae_flt[ilon,ilat])
     end
 
-    fnc = datadir("e5gadiff.nc")
+    fnc = datadir("e5gadiff-smoothed.nc")
     if isfile(fnc) rm(fnc,force=true) end
     ds = NCDataset(fnc,"c")
 
